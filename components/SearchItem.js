@@ -1,22 +1,31 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, TouchableHighlight } from "react-native";
 import { colors } from "../utils";
 import { AntDesign } from "@expo/vector-icons";
 
-export default function SearchItem() {
+export default function SearchItem({city, country, state}) {
+
   return (
     <View style={styles.searchItem}>
       <View style={styles.searchItemContent}>
         <View>
-          <Text style={styles.title}>aaa</Text>
-          <Text>aaa</Text>
+          <Text style={styles.title}>{city}</Text>
+          <Text style={styles.text}>{state}, {country}</Text>
         </View>
-        <AntDesign
-          name="arrowright"
-          size={24}
-          color={colors.PRIMARY_COLOR}
-          style={{ marginBottom: -5 }}
-        />
+        <TouchableHighlight
+          activeOpacity={0.6}
+          underlayColor="#ccc"
+          style={styles.iconWrapper}
+          onPress={() => {
+            console.log("click");
+          }}
+        >
+          <AntDesign
+            name="arrowright"
+            size={24}
+            color={colors.PRIMARY_COLOR}
+          />
+        </TouchableHighlight>
       </View>
     </View>
   );
@@ -28,11 +37,16 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     height: 80,
     paddingVertical: 15,
-    paddingHorizontal: 20,
-    marginBottom: 10
+    paddingLeft: 20,
+    paddingRight: 10,
+    marginBottom: 10,
   },
-  title:{
-    fontWeight: '700'
+  title: {
+    fontWeight: "700",
+    color: "#333",
+  },
+  text: {
+    color: "#333",
   },
   searchItemContent: {
     borderLeftWidth: 4,
@@ -41,6 +55,14 @@ const styles = StyleSheet.create({
     height: "100%",
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: 'space-between'
+    justifyContent: "space-between",
+  },
+  iconWrapper: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 50,
+    height: 50,
+    width: 50,
   },
 });

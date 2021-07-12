@@ -11,6 +11,12 @@ import { colors } from './utils';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 import SearchScreen from './components/SearchScreen';
+import Details from './components/Details';
+import { Provider } from 'react-redux';
+import store from "./store";
+import { useDispatch } from 'react-redux'
+import { locationsActions } from './store/locations'
+
 
 const BASE_WEATHER_URL ="https://api.openweathermap.org/data/2.5/weather?";
 
@@ -28,6 +34,11 @@ const RootStackScreen = ({ userToken }) => (
       component={SearchScreen}
       options={{ animationEnabled: false }}
     />
+    <RootStack.Screen
+      name="Details"
+      component={Details}
+      options={{ animationEnabled: false }}
+    />
   </RootStack.Navigator>
 );
 
@@ -35,6 +46,7 @@ const Home = ({ navigation }) => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [currentWeather, setCurrentWeather] = useState(null);
   const [unitSystem, setUnitSystem] = useState("metric");
+  const dispatch = useDispatch()
 
   useEffect(() => {
     const ac = new AbortController();
@@ -49,12 +61,13 @@ const Home = ({ navigation }) => {
       let { status } = await Location.requestForegroundPermissionsAsync();
 
       if (status !== "granted") {
-        setErrorMessage("Access to location is needed to ru the app");
+        setErrorMessage("Access to location is needed to run the app");
         return;
       }
       const location = await Location.getCurrentPositionAsync();
       const { latitude, longitude } = location.coords;
-      const wheaterUrl = `${BASE_WEATHER_URL}lat=${latitude}&lon=${longitude}&units=${unitSystem}&appid=f3708e79d6a61d60916f3c4cd544e0f6`;
+      dispatch(locationsActions.setCurrentLocation({ latitude, longitude }))
+      const wheaterUrl = `${BASE_WEATHER_URL}lat=${latitude}&lon=${longitude}&units=${unitSystem}&appid=${WEATHER_API_KEY}`;
       const response = await fetch(wheaterUrl);
       const result = await response.json();
       if (response.ok) {
@@ -69,7 +82,12 @@ const Home = ({ navigation }) => {
   if (currentWeather) {
     return (
       <View style={styles.container}>
-        <Button title="Search" onPress={() => navigation.push("Search")} />
+        <Button
+          title="Search"
+          onPress={() =>
+            navigation.push("Search")
+          }
+        />
         <StatusBar style="auto" />
         <View style={styles.main}>
           <UnitsPicker unitSystem={unitSystem} setUnitSystem={setUnitSystem} />
@@ -102,9 +120,11 @@ const Home = ({ navigation }) => {
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <RootStackScreen />
-    </NavigationContainer>
+     <Provider store={store}>
+      <NavigationContainer>
+        <RootStackScreen />
+      </NavigationContainer>
+     </Provider>
   );
 }
 
@@ -112,8 +132,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    // alignItems: 'center',
-
     justifyContent: 'center',
   },
   main:{
